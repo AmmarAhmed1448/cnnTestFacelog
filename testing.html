@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Camera Capture</title>
+</head>
+<body>
+  <button onclick="captureSingleImage()">Capture Single Image</button>
+
+  <script>
+    async function captureSingleImage() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+
+        const video = document.createElement('video');
+        document.body.appendChild(video);
+        video.srcObject = stream;
+        await video.play();
+
+        // Capture a single frame
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const context = canvas.getContext('2d');
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        // Encode the captured image in base64
+        const imageDataURL = canvas.toDataURL('image/jpeg');
+
+        // Display the base64 code in the console as an array
+        console.log([imageDataURL]);
+
+        // Stop capturing
+        stream.getTracks().forEach(track => track.stop());
+        document.body.removeChild(video);
+      } catch (error) {
+        console.error('Error accessing camera:', error);
+      }
+    }
+  </script>
+</body>
+</html>

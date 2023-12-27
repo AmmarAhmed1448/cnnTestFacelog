@@ -1,0 +1,149 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Camera Capture</title>
+</head>
+<body>
+  <button onclick="startCapture()">Start Capture</button>
+  <p id="b64code"></p>
+
+  <script>
+    let b64code = document.getElementById("b64code")
+    let imgCodeJsonArray = [];
+    let captureCounter = 0;
+
+
+    async function startCapture() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+
+        const video = document.createElement('video');
+        document.body.appendChild(video);
+        video.srcObject = stream;
+        await video.play();
+
+        const captureFrame = async () => {
+          if (captureCounter < 100) {
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            const imageDataURL = canvas.toDataURL('image/jpeg');
+
+            // Store the base64-encoded image
+            imgCodeJsonArray.push(imageDataURL);
+
+            captureCounter++;
+
+            // Capture the next frame immediately
+            requestAnimationFrame(captureFrame);
+          } else {
+            // Stop capturing when 100 images are captured
+            stream.getTracks().forEach(track => track.stop());
+            document.body.removeChild(video);
+
+            // Log or handle the array of base64-encode images
+            console.log(imgCodeJsonArray);
+            b64code.innerText = imgCodeJsonArray
+          }
+        };
+
+        // Start capturing frames
+        captureFrame();
+      } catch (error) {
+        console.error('Error accessing camera:', error);
+      }
+    }
+  </script>
+</body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Camera Capture</title>
+</head>
+<body>
+  <button onclick="startCapture()">Start Capture</button>
+  <p id="b64code"></p>
+
+  <script>
+    let b64code = document.getElementById("b64code")
+    let imgCodeJsonArray = [];
+    let captureCounter = 0;
+
+    async function startCapture() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+
+        const video = document.createElement('video');
+        document.body.appendChild(video);
+        video.srcObject = stream;
+        await video.play();
+
+        const captureFrame = async () => {
+          if (captureCounter < 100) {
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            const imageDataURL = canvas.toDataURL('image/jpeg');
+
+            // Store the base64-encoded image
+            imgCodeJsonArray.push(imageDataURL);
+
+            captureCounter++;
+
+            // Capture the next frame immediately
+            requestAnimationFrame(captureFrame);
+          } else {
+            // Stop capturing when 100 images are captured
+            stream.getTracks().forEach(track => track.stop());
+            document.body.removeChild(video);
+
+            // Log or handle the array of base64-encode images
+            console.log(imgCodeJsonArray);
+            b64code.innerText = imgCodeJsonArray;
+
+            // Send base64 code array to the server
+            postImagesToServer(imgCodeJsonArray);
+          }
+        };
+
+        // Start capturing frames
+        captureFrame();
+      } catch (error) {
+        console.error('Error accessing camera:', error);
+      }
+    }
+
+    function postImagesToServer(images) {
+      // Prepare the data to be sent
+      const postData = {
+        imgCodeJsonArray: images
+      };
+
+      // Send a POST request to the server
+      fetch('http://127.0.0.1:5000/save-images-training', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(postData),
+      })
+      .then(response => response.json())
+      .then(data => console.log('Images posted to the server:', data))
+      .catch(error => console.error('Error posting images:', error));
+    }
+  </script>
+</body>
+</html>
